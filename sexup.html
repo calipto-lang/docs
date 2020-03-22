@@ -1,11 +1,10 @@
 
-
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; Calipto  documentation</title>
+    <title>5. Markup &#8212; Calipto  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,8 +12,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <link rel="index" title="Index" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="4. Numerics" href="numerics.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -31,11 +31,33 @@
 
           <div class="body" role="main">
             
+  <div class="section" id="markup">
+<h1>5. Markup<a class="headerlink" href="#markup" title="Permalink to this headline">¶</a></h1>
+<p>Most s-expression “markup languages” aren’t really markup languages. Markup should mean the annotation of text content with metadata, not the embedding of text content within data.</p>
+<p>Here is an example of some html-flavored sexup:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#(sexup-html)
+(html @(id thing)
+  (h1 This is a Document)
 
-<h1 id="index">Index</h1>
+  (p This is a paragraph.)
 
-<div class="genindex-jumpbox">
- 
+  (p
+    Here is more text.
+
+    Here is an inserted $(value).
+    Or maybe \ this / is?
+
+    (ul @(attribute $(value))
+      (li Here are ...)
+      (li ... some ...)
+      (li ... list items))
+
+    Here is a (a @(href url) link).)
+  (\p In this paragraph we can use (brackets).\)
+  (\\p And in this one we can use (\brackets and backslashes\).\\)
+  (p But not here!))
+</pre></div>
+</div>
 </div>
 
 
@@ -56,18 +78,19 @@
 
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">1. Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="base.html">2. Base Language</a></li>
 <li class="toctree-l1"><a class="reference internal" href="text.html">3. Text</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numerics.html">4. Numerics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sexup.html">5. Markup</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Markup</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="numerics.html" title="previous chapter">4. Numerics</a></li>
   </ul></li>
 </ul>
 </div>
@@ -100,6 +123,9 @@
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
+      |
+      <a href="_sources/sexup.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

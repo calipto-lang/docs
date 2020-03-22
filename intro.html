@@ -14,6 +14,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Base Language" href="base.html" />
     <link rel="prev" title="Welcome to Calipto’s documentation!" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -45,8 +46,8 @@
 </div>
 <div class="section" id="types">
 <h2>1.2. Types<a class="headerlink" href="#types" title="Permalink to this headline">¶</a></h2>
-<p>The host language, and by extension all client languages, are furnished with a general-purpose type system based on static analysis and type-recovery. This means that types can be <em>expressed as runtime checks</em>, but that those checks are <em>statically enforced</em> by the compiler, and erased so that they place no runtime burden. This means that type-level metaprogramming needs no special syntax and can be expressed directly in the host language, avoiding the language bifurcation which comes with e.g. template metaprogramming in C++ or awkward side-channels to annotate methods with pre and post conditions. We believe that this is the best of both words, static safety with a single unified programming model.</p>
-<p>Out of the box Calipto provides support for advanced features such as dependent and higher-order types, and since they are implemented via macros it is trivial for any language which is bootstrapped from Calipto to supplement or “turn off” these checks wherever they like, or even to substitute their own type systems via entirely different mechanisms.</p>
+<p>The host language, and by extension all client languages, are furnished with a general-purpose type system based on static analysis and type-recovery. This means that types can be <em>expressed as runtime checks</em>, but that those checks are <em>statically enforced</em> by the compiler, and erased so that they place no runtime burden. We believe that this is the best of both words, static safety with a single unified programming model.</p>
+<p>Out of the box Calipto provides static analysis for advanced features such as dependent and higher-order types, and since they are implemented via macros any language which is bootstrapped from Calipto can supplement or “turn off” these checks wherever they like, or even to substitute their own type systems via entirely different mechanisms.</p>
 </div>
 <div class="section" id="effects">
 <h2>1.3. Effects<a class="headerlink" href="#effects" title="Permalink to this headline">¶</a></h2>
@@ -58,7 +59,7 @@
 </div>
 <div class="section" id="performance">
 <h2>1.5. Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h2>
-<p>A reference implementation supporting both native image generation and an interpreted mode with a state-of-the-art JIT compiler, via <a class="reference external" href="https://github.com/oracle/graal">GraalVM &amp; Truffle</a>.</p>
+<p>A reference implementation supporting both native image generation and an interpreted mode with a state-of-the-art JIT compiler, via <cite>GraalVM &amp; Truffle &lt;https://github.com/oracle/graal&gt;</cite>.</p>
 </div>
 </div>
 
@@ -89,6 +90,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#performance">1.5. Performance</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">2. Base Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="text.html">3. Text</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerics.html">4. Numerics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sexup.html">5. Markup</a></li>
 </ul>
 
 <div class="relations">
@@ -96,6 +101,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="index.html" title="previous chapter">Welcome to Calipto’s documentation!</a></li>
+      <li>Next: <a href="base.html" title="next chapter">2. Base Language</a></li>
   </ul></li>
 </ul>
 </div>
