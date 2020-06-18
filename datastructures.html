@@ -1,11 +1,10 @@
 
-
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; Calipto  documentation</title>
+    <title>Persistent Data Structures &#8212; Calipto  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,7 +12,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <link rel="index" title="Index" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -31,11 +30,23 @@
 
           <div class="body" role="main">
             
-
-<h1 id="index">Index</h1>
-
-<div class="genindex-jumpbox">
- 
+  <div class="section" id="persistent-data-structures">
+<h1>Persistent Data Structures<a class="headerlink" href="#persistent-data-structures" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="linear-modification">
+<h2>Linear modification<a class="headerlink" href="#linear-modification" title="Permalink to this headline">¶</a></h2>
+<p>When we modify collections linearly (i.e. can statically prove that the previous version of the collection is thrown away) we can use inline mutating versions of operations as an optimisation.</p>
+<p>Theoretically we could even detect when mutliple linear operations happen in sequence and optimise them together, for instance to pre-allocate a list when we know how many elements will be added. This is far more complex though.</p>
+</div>
+<div class="section" id="maps-sets">
+<h2>Maps &amp; Sets<a class="headerlink" href="#maps-sets" title="Permalink to this headline">¶</a></h2>
+<p>Unordered: CHAMP, HHAMT</p>
+<p>Ordered: Who knows!</p>
+<p>If we have collections based on prefixes, i.e. Trie and descendents, we can generalise this to tree data structures not just strings or binary blobs. Probably fastest to do breadth-first and to have special markers for END and SUBLIST, so e.g. ((a b) c) would be <code class="docutils literal notranslate"><span class="pre">SUBLIST</span> <span class="pre">c</span> <span class="pre">END</span> <span class="pre">a</span> <span class="pre">b</span> <span class="pre">END</span></code>. This might mean we’re less likely to have to chase pointers when going through the prefix, but this is dependent on how things are laid out, and the ordering it produces will probably be unintuitive if that’s important.</p>
+</div>
+<div class="section" id="lists">
+<h2>Lists<a class="headerlink" href="#lists" title="Permalink to this headline">¶</a></h2>
+<p>RRB Vector <a class="reference external" href="https://dl.acm.org/doi/10.1145/2784731.2784739">https://dl.acm.org/doi/10.1145/2784731.2784739</a></p>
+</div>
 </div>
 
 
@@ -102,6 +113,9 @@
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
+      |
+      <a href="_sources/datastructures.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

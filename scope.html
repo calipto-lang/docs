@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Scope &#8212; Calipto  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="scope">
+<h1>Scope<a class="headerlink" href="#scope" title="Permalink to this headline">¶</a></h1>
+<p>Calipto core is lexically scoped. Names are bound to values by way of function application.</p>
+<p>Macros in Calipto are hygienic, but it is important to understand how scoping rules interact with macro expansion.</p>
+<div class="section" id="variable-names">
+<h2>Variable Names<a class="headerlink" href="#variable-names" title="Permalink to this headline">¶</a></h2>
+<p>Variable names in Calipto are not just symbols, they are <em>any atom</em>. This allows them to be qualified with enough information to uniquly identify them. The scanner generally adds the necessary qualifiers to raw symbols transparently. This is how we maintain hygiene in Calipto.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>Perhaps qualified names must be atoms with a special namespace, say <code class="docutils literal notranslate"><span class="pre">qualified-name</span></code>. This way we have a single place where they are created and we can intern them (and generate their hashes ahead of time?) as an optimisation, which means they’re no slower to use in practice than normal symbols.</p>
+</div>
+<p>Macros are free to try to create their own qualified names by decorating the reader, but it will be an error if they’re not unique within any compilation unit in which they appear. For instance a default lambda macro may choose to qualify parameters with the function name, source position, and source file. The module system may choose to qualify imports by content hash to guarantee uniqueness.</p>
+<p>Does this mean that names visible via module exports must be globally unique? i.e. hashed/content addressed? This seems awkward.</p>
+<p>Way to parse qualified names? <code class="docutils literal notranslate"><span class="pre">calipto.org:builtin:stdin</span></code> <code class="docutils literal notranslate"><span class="pre">|file:///home/user/script.cal|:(line</span> <span class="pre">1000):x</span></code>.</p>
+<p>Perhaps we can leave out parts we don’t need?</p>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>In the runtime the extra info embedded in the variable name doesn’t too-badly affect size or speed as variables can be interned and generally treated as opaque pointers. But what if we want to compile and output IR? A dumb printer will duplicate the full qualified names of everything at every single use-site, which could be a huge increase in footprint. Especially with e.g. giant content hashes sprinkled everywhere!</p>
+</div>
+</div>
+<div class="section" id="define">
+<h2>Define<a class="headerlink" href="#define" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">define</span></code> macro binds a value to a name . In the simplest case it is easy to see how this works:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(define greeting &quot;Hello&quot;)
+
+(print (cat greeting &quot;!&quot;))
+; Hello!
+</pre></div>
+</div>
+<p>Here we bind the string value <code class="docutils literal notranslate"><span class="pre">&quot;Hello&quot;</span></code> to the symbol <code class="docutils literal notranslate"><span class="pre">greeting</span></code>, then when we mention the symbol again later it resolves to this value and we are able to print it to the console.</p>
+<p>Defines do not have to appear at the root of a source file, they can be nested within functions, or within other defines, and will then only be visible within the lexical scope in which they appear. They are able to capture bindings from the lexical scope in which they appear:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">define</span>
+</pre></div>
+</div>
+<div class="admonition-todo admonition" id="id3">
+<p class="admonition-title">Todo</p>
+<p>Or should they be static and not permit capture?</p>
+</div>
+<p>The a defined value is not fully resolved until it is used, and is permitted to mention unbound symbols. But these symbols must all be defined before the value is used. This allows for mutual recursion:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(define even? (lambda (x)
+  (or (= 0 x)
+      (not (odd? (dec x))))))
+
+(define odd? (lambda (x)
+  (and (not (= 0 x))
+       (not (even? (dec x))))))
+
+(even? 10)
+; true
+</pre></div>
+</div>
+<p>In cases of recursion, an extra parameter must be injected into each participating function for every function which it recurs into, including itself. This allows us to translate to an equivalent form with no forward references:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(define even?-r (lambda (even? odd? x)
+  (or (= 0 x)
+      (not (odd? even? odd? (dec x))))))
+
+(define odd?-r (lambda (even? odd? x)
+  (and (not (= 0 x))
+       (not (even? even? odd? (dec x)))))
+
+(define even? (lambda (x)
+  (even?-r even?-r odd?-r x)))
+
+(define odd? (lambda (x)
+  (odd?-r even?-r odd?-r x)))
+</pre></div>
+</div>
+</div>
+<div class="section" id="let">
+<h2>Let<a class="headerlink" href="#let" title="Permalink to this headline">¶</a></h2>
+<p>(let</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Calipto</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">2. Base Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="text.html">3. Text</a></li>
+<li class="toctree-l1"><a class="reference internal" href="text.html#representation">4. Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="text.html#layout">5. Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerics.html">6. Numerics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sexup.html">7. Markup</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Elias N Vasylenko.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/scope.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

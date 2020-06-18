@@ -14,7 +14,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="4. Numerics" href="numerics.html" />
+    <link rel="next" title="6. Numerics" href="numerics.html" />
     <link rel="prev" title="2. Base Language" href="base.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -36,64 +36,157 @@
 <h1>3. Text<a class="headerlink" href="#text" title="Permalink to this headline">¶</a></h1>
 <p>When discussing text in the context of programming there are a few different views we can take at different levels of abstraction, so let’s define some terms.</p>
 <ul class="simple">
-<li><p><em>Literal</em> - A piece of text as it appears in source code.</p></li>
-<li><p><em>String</em> - A sequence of abstract characters which defines a piece of text.</p></li>
-<li><p><em>Character</em> - The indivisible unit from which text is composed.</p></li>
+<li><p><em>Literal</em> - A piece of textual data as it appears in source code.</p></li>
+<li><p><em>String</em> - A sequence of characters which defines a piece of text in the abstract.</p></li>
+<li><p><em>Character</em> - The indivisible unit from which a string is composed.</p></li>
 <li><p><em>Representation</em> - The s-expressions which represent strings and characters at runtime. Every string must be encodable in Unicode, and all Unicode text must be representable as a string.</p></li>
-<li><p><em>Layout</em> - A scheme for storing a representation in computer memory. A typical implementation may choose to lay out strings according to a standard encoding such as UTF-8 or UTF-32, but this is not a requirement.</p></li>
+<li><p><em>Layout</em> - A scheme for storing a representation in computer memory. A typical compiler or runtime implementation may choose to lay out strings according to a standard encoding such as UTF-8 or UTF-32, but this is not a requirement as the choice should not be visible to user code.</p></li>
 </ul>
-<div class="section" id="string-literals">
-<h2>3.1. String Literals<a class="headerlink" href="#string-literals" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="literals">
+<h2>3.1. Literals<a class="headerlink" href="#literals" title="Permalink to this headline">¶</a></h2>
 <p>Basic string literals in Calipto are delimited by quotes <code class="docutils literal notranslate"><span class="pre">&quot;</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;For example, this is a string.&quot;</span>
 </pre></div>
 </div>
-<p>Unlike in most languages, literals in Calipto do not support escape sequences. Instead, if a string is to contain quotes, the delimiters must be modified by way of surrounding the string with backslashes <code class="docutils literal notranslate"><span class="pre">\</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="s2">&quot;Thus any quotes within the string are &quot;</span><span class="n">disambiguated</span><span class="s2">&quot; from the delimiters.&quot;</span>\
+<p>Unlike in most languages, string literals in Calipto do not support escape sequences by default. Instead, if a string is to contain quotes, the delimiters must be made longer so as to distinguish them from the string content:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;&quot;</span><span class="n">Thus</span> <span class="nb">any</span> <span class="n">quotes</span> <span class="n">within</span> <span class="n">the</span> <span class="n">string</span> <span class="n">are</span> <span class="s2">&quot;disambiguated&quot;</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">delimiters</span><span class="o">.</span><span class="s2">&quot;&quot;</span>
 </pre></div>
 </div>
-<p>And in the same way, if a string is to contain backslashes, the delimiters must be extended with a sequence of backslashes which exceeds the longest sequence within the string. The number of backslashes before the opening delimiter must match the number after the closing delimiter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\\\<span class="s2">&quot;And now we can put one \ or two </span><span class="se">\\</span><span class="s2"> backslashes in our string.&quot;</span>\\\
-</pre></div>
-</div>
-<p>In languages which support escape sequences, programmers are forced to visually parse an embedded DSL just to understand what the contents of a string will be at runtime, but in Calipto the contents are always exactly as they appear.</p>
-<p>The choice not to support escape sequences or backslashes is justified by the ease with which strings can be concatenated:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">cat</span> <span class="s2">&quot;Hello, string.&quot;</span> \<span class="n">n</span><span class="p">)</span>
+<p>This means that the literal <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> cannot be used to denote an empty string, since it is ambiguous with an opening delimiter. This is not a problem, as the empty string is just an empty list and can be denoted by <code class="docutils literal notranslate"><span class="pre">()</span></code>.</p>
+<p>A string can also span multiple lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;</span>
+<span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">multi</span><span class="o">-</span><span class="n">line</span> <span class="n">literal</span> <span class="n">denoting</span> <span class="n">a</span> <span class="n">single</span><span class="o">-</span><span class="n">line</span> <span class="n">string</span><span class="o">.</span>
+<span class="s2">&quot;</span>
 
-<span class="p">(</span><span class="n">cat</span> <span class="n">multiplier</span> <span class="s2">&quot; times 2.5 is &quot;</span> <span class="p">(</span><span class="c1">#decimal 2.5 multiplier))</span>
+<span class="s2">&quot;&quot;</span>
+<span class="n">And</span> <span class="n">this</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">multi</span><span class="o">-</span><span class="n">line</span> <span class="n">literal</span> <span class="n">denoting</span> <span class="o">...</span>
+<span class="o">...</span> <span class="n">a</span> <span class="s2">&quot;multi-line&quot;</span> <span class="n">string</span><span class="o">.</span>
+<span class="s2">&quot;&quot;</span>
 </pre></div>
 </div>
-<p>We can also use our escape notation to help make our opening and closing delimiters “heavier” in long concatenations, and to disambiguate them visually:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">cat</span> \<span class="s2">&quot;Thingy is at point [&quot;</span>\ <span class="n">x</span> <span class="s2">&quot;, &quot;</span> <span class="n">y</span> <span class="s2">&quot;]&quot;</span><span class="p">)</span>
+<p>In this case, the opening delimiter must be immediately followed by a newline, and every following line must be aligned to it by preceding spaces. The first and last newlines are ignored when present, as are the aligning spaces:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(uppercase &quot;
+           Help!
+           Please!
+           &quot;)
+
+(unescape \\
+  This is a string!
+  \\)
+
+(unescape \ This is a string with an \inline value\)
 </pre></div>
 </div>
-<p>It’s also possible for string literals to span multiple lines:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(strip-indent (cat \&quot;
+<p>Readers may notice that single-line literals cannot begin and end with quotes, as they cannot be distinguished from delimiters. Such strings must be written as multi-line literals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;Hello,&quot; she said, &quot;I come in peace.&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+\<span class="s2">&quot;&quot;</span><span class="n">Hello</span><span class="p">,</span><span class="s2">&quot; she said, &quot;</span><span class="n">I</span> <span class="n">come</span> <span class="ow">in</span> <span class="n">peace</span><span class="o">.</span><span class="s2">&quot;</span><span class="se">\&quot;</span>
+
+<span class="p">(</span><span class="n">strip</span><span class="o">-</span><span class="n">indent</span>
+  \<span class="s2">&quot;</span><span class="se">\</span>
+<span class="s2">  &quot;</span><span class="n">Hello</span><span class="p">,</span><span class="s2">&quot; she said, &quot;</span><span class="n">I</span> <span class="n">come</span> <span class="ow">in</span> <span class="n">peace</span><span class="o">.</span><span class="s2">&quot;</span>
+  \<span class="s2">&quot;)</span>
+</pre></div>
+</div>
+<p>The choice not to support escape sequences or backslashes is justified by the ease with which strings can be concatenated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(cat &quot;Hello, string.&quot; \n)
+
+(cat multiplier &quot; times 2.5 is &quot; (#decimal 2.5 multiplier))
+
+\&quot;\multiplier times 2.5 is \(#decimal 2.5 multiplier))
+\&quot;
+
+(unescape \ &quot;\multiplier times 2.5 is \(#decimal 2.5 multiplier)\&quot;)
+
+(unescape $ &quot;C:\Users\$(name user)\.app\$&quot;)
+
+(unescape ( ) &quot;C:\Users\(user-name)\.app\&quot;)
+
+(cat &quot;C:\Users\&quot; (name user) &quot;\.app\&quot;)
+
+&quot;\ \multiplier times 2.5 is \(#decimal 2.5 multiplier)) \&quot;
+
+(unescape
+  \&quot;\
   This is the first line...
   ... and this is the second!
-  Here&#39;s a value in quotes: &quot;&quot;\ (inline-value) \&quot;&quot;!
-  And now for the final line.&quot;\)))
+  Here&#39;s a value in quotes: &quot;\(inline-value)&quot;!
+  And now for the final line.
+  \&quot;)
+
+(strip-indent (cat \&quot;\
+                   This is the first line...
+                   ... and this is the second!
+                   Here&#39;s a value in quotes: &quot;\&quot; (inline-value) \&quot;&quot;!
+                   And now for the final line.
+                   \&quot;))
+
+(strip-indent (cat &quot;&quot;
+                   This is the first line...
+                   ... and this is the second!
+                   Here&#39;s a value in quotes: &quot;&quot;&quot; (inline-value) &quot;&quot;\&quot;!
+                   And now for the final line.
+                   \&quot;&quot;))
 </pre></div>
 </div>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>Maybe we should support escapes? They can be explicitly enabled by following the opening delimiter with a sequence of backslashes.</p>
+<dl class="simple">
+<dt>(strip-indent (cat “”</dt><dd><p>This is the first line…
+… and this is the second!
+Here’s a value in quotes: “(inline-value)”!
+And now for the final line.
+“”))</p>
+</dd>
+</dl>
+<p>In this example an interpolated value is an escape marker followed by whitespace. We don’t need special syntax to close the interpolated value, we just call “read” on the scanner at that point and it ends where it ends…</p>
+<p>This combination of rules does make it oddly difficult to start a string with slashes…
+”
+this line is the string proper”</p>
+</div>
+</div>
+<div class="section" id="strings">
+<h2>3.2. Strings<a class="headerlink" href="#strings" title="Permalink to this headline">¶</a></h2>
+<p>A string is simply a sequence of characters, so this is how Calipto represents them. Simply as a proper list with each subsequent element being the subsequent character.</p>
 </div>
 <div class="section" id="characters">
-<h2>3.2. Characters<a class="headerlink" href="#characters" title="Permalink to this headline">¶</a></h2>
+<h2>3.3. Characters<a class="headerlink" href="#characters" title="Permalink to this headline">¶</a></h2>
 <p>If a string is a sequence of characters, we need to define exactly what constitutes a “character” and how this notion is represented at runtime. This turns out be be a tricky choice with a number of subtle tradeoffs, as the word character is heavily overloaded.</p>
 <p>In the Unicode standard there are a few candidates for what could be considered a character.</p>
 <ul class="simple">
-<li><p>A <em>glyph</em> is a specific written representation of a grapheme, for instance the way a grapheme is rendered according to a choice of font.</p></li>
-<li><p>A <em>grapheme</em> is what a human reader would typically consider a single character. It may be composed of multiple code points.</p></li>
-<li><p>A <em>code point</em> is the unit of information of text in the abstract. It is independent of encoding and may be composed of multiple code units.</p></li>
+<li><p>A <em>glyph</em> is a specific written representation of a “grapheme”, for instance the way a grapheme is rendered according to a choice of font.</p></li>
+<li><p>A <em>grapheme</em> is what a human reader would typically consider a single character. It may be composed of multiple “code points”.</p></li>
+<li><p>A <em>code point</em> is the unit of information of text in the abstract. It is independent of encoding and may be composed of multiple “code units”.</p></li>
 <li><p>A <em>code unit</em> is the unit of encoding of text as a series of bytes. It is dependent on the chosen encoding format (i.e. UTF-8, UTF-16, UTF-32, etc.)</p></li>
 </ul>
 <p>In Calipto we choose code points as our unit of representation, and hereafter we will interchangeably refer to code points as characters. The justification for this choice is multi-faceted.</p>
 <p>Code units are unsuitable to be the character unit, as they are an artifact of the choice of encoding which is generally considered to be an implementation detail. Glyphs, too, are unsuitable to be the character unit, as they are concerned with the manner of representation of text rather than the abstract text itself.</p>
 <p>Graphemes are a more attractive target, but unfortunately they are sometimes defined to be locale-dependent in Unicode, and it is also sometimes useful to manipulate text at the sub-grapheme level.</p>
-<p>So for these reasons, code points are left as the best option to be our character, and our unit of representation. This has a few other benefits, for instance it aligns with the Unicode standard, which assigns “Abstract Characters” to single code points. It also simplifies laying characters out in memory in some circumstances, as all code points can fit into the same fixed amount of space.</p>
+<p>So for these reasons, code points are left as the best option to be our character, and our unit of representation. This has a few other benefits, for instance it aligns with the terminology of the Unicode standard, which assigns “Abstract Characters” to single code points. It also simplifies laying characters out in memory in some circumstances, as all code points can fit into the same fixed amount of space.</p>
 <p>However, many text manipulation tasks should operate over graphemes and not “characters”, and for this reason many of the operations defined over text are parametric with a strategy for “clustering” graphemes.</p>
 </div>
+</div>
+<div class="section" id="representation">
+<h1>4. Representation<a class="headerlink" href="#representation" title="Permalink to this headline">¶</a></h1>
+<p>We have defined an abstract notion of a character for our purposes, but we have not discussed how a character is to be represented at runtime. In Calipto we choose to represent each character as a distinct symbol in a special namespace <code class="docutils literal notranslate"><span class="pre">unicode</span></code>.</p>
+<p>The purpose of a symbol is only to describe a unique combination of name and namespace. It is tempting to say that the symbol name for a character should be the character itself, but this is problematic:</p>
+<ul class="simple">
+<li><p>Some symbols are “combining marks” which don’t make sense by themselves, for example accents.</p></li>
+<li><p>Whitespace characters would not appear in some circumstances.</p></li>
+<li><p>Many characters are indistinguishable in most fonts.</p></li>
+</ul>
+<p>Instead, the name for a character’s symbol is simply the unicode name string.</p>
+</div>
+<div class="section" id="layout">
+<h1>5. Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h1>
+<p>It might feel unnecessarily “heavy” to burden each character of a string with its entire name, but when processing strings we don’t actually have to reflect over the names of the symbols of the constituent characters so we can still lay the characters out in memory efficiently and operate on them quickly. It’s typically only for debugging purposes that the system will be asked to fetch the name of a character symbol, at which point it may be useful for the programmer to be given a full name.</p>
+<p>Since characters are represented nominally rather than numerically by index, this does preclude use from easily employing arithmetic over characters at the language level. Since the layout is likely to be numeric, however, tricks such as intrinsics can be used to avoid having to materialise huge tables just to encode and decode text, so Calipto should be able to perform these tasks as fast as any language.</p>
 <div class="section" id="graphemes">
-<h2>3.3. Graphemes<a class="headerlink" href="#graphemes" title="Permalink to this headline">¶</a></h2>
+<h2>5.1. Graphemes<a class="headerlink" href="#graphemes" title="Permalink to this headline">¶</a></h2>
 <p>TODO discuss grapheme clustering.
 Normalisation
 TODO discuss normalisation &amp; equivalence (Unicode specifies 4 normal forms!)</p>
@@ -101,7 +194,7 @@ TODO discuss normalisation &amp; equivalence (Unicode specifies 4 normal forms!)
 <p>Newlines are just n on all platforms by default.</p>
 </div>
 <div class="section" id="scanning">
-<h2>3.4. Scanning<a class="headerlink" href="#scanning" title="Permalink to this headline">¶</a></h2>
+<h2>5.2. Scanning<a class="headerlink" href="#scanning" title="Permalink to this headline">¶</a></h2>
 <p>Characters in strings cannot be directly indexed, they must be reached and counted by iterating over them. This is to make it easier for language implementations to choose compressed storage strategies such as UTF-8 or UTF-16.</p>
 <p>Graphemes can also not be directly indexed or counted. TODO explain why.</p>
 <p>In other words, most useful operations over strings are defined iteratively. It turns out that iterative operations are more widely applicable than just to static strings, for instance we may also be able to iterate efficiently over streaming network sources, or text generated dynamically. For this reason we abstract all our important string processing operations into a more general text scanning API.</p>
@@ -130,14 +223,19 @@ TODO discuss normalisation &amp; equivalence (Unicode specifies 4 normal forms!)
 <li class="toctree-l1"><a class="reference internal" href="intro.html">1. Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="base.html">2. Base Language</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">3. Text</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#string-literals">3.1. String Literals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#characters">3.2. Characters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#graphemes">3.3. Graphemes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scanning">3.4. Scanning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#literals">3.1. Literals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#strings">3.2. Strings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#characters">3.3. Characters</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="numerics.html">4. Numerics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sexup.html">5. Markup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#representation">4. Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#layout">5. Layout</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#graphemes">5.1. Graphemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scanning">5.2. Scanning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="numerics.html">6. Numerics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sexup.html">7. Markup</a></li>
 </ul>
 
 <div class="relations">
@@ -145,7 +243,7 @@ TODO discuss normalisation &amp; equivalence (Unicode specifies 4 normal forms!)
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="base.html" title="previous chapter">2. Base Language</a></li>
-      <li>Next: <a href="numerics.html" title="next chapter">4. Numerics</a></li>
+      <li>Next: <a href="numerics.html" title="next chapter">6. Numerics</a></li>
   </ul></li>
 </ul>
 </div>
